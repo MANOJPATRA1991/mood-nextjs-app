@@ -6,10 +6,16 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:generate": "npx prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma --script > migration.sql",
+    "db:push": "turso db shell mood < migration.sql"
   },
   "dependencies": {
     "@clerk/nextjs": "^5.4.1",
+    "@libsql/client": "^0.10.0",
+    "@prisma/adapter-libsql": "^5.19.1",
+    "@prisma/client": "^5.19.1",
+    "dotenv": "^16.4.5",
     "next": "14.2.8",
     "react": "^18",
     "react-dom": "^18"
@@ -21,6 +27,7 @@
     "eslint": "^8",
     "eslint-config-next": "14.2.8",
     "postcss": "^8",
+    "prisma": "^5.19.1",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
   }
