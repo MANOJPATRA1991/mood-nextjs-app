@@ -43,6 +43,7 @@ model JournalEntry {
   status   String   @default("DRAFT")
   analysis EntryAnalysis?
   
+  // Compound index - userId + id has to be unique
   @@unique([userId, id])
 }
 
