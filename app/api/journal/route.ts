@@ -1,5 +1,6 @@
 import { db } from "@/prisma/db";
 import { getUserByClerkID } from "@/utils/auth";
+import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 
 export const POST = async () => {
@@ -21,6 +22,8 @@ export const POST = async () => {
       }
     },
   });
+
+  revalidatePath("/journal");
 
   return NextResponse.json({ data: entry });
 };
