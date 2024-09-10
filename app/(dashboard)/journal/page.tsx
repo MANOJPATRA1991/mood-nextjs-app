@@ -2,6 +2,7 @@ import EntryCard from "@/components/EntryCard";
 import NewEntryCard from "@/components/NewEntryCard";
 import { db } from "@/prisma/db";
 import { getUserByClerkID } from "@/utils/auth";
+import { EntryAnalysis, JournalEntry } from "@prisma/client";
 import Link from "next/link";
 
 const getEntries = async () => {
@@ -11,14 +12,14 @@ const getEntries = async () => {
       userId: user.id,
     },
     orderBy: {
-      createdAt: 'desc',
+      createdAt: "desc",
     },
     include: {
       analysis: true,
-    }
+    },
   });
 
-  return entries;
+  return entries as (JournalEntry & { analysis: EntryAnalysis })[];
 };
 
 const JournalPage = async () => {
