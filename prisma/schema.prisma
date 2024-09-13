@@ -10,61 +10,50 @@ datasource db {
 }
 
 model User {
-  id        String         @id @default(uuid())
-  email     String         @unique
-  clerkId   String         @unique
+  id        String          @id @default(uuid())
+  email     String          @unique
+  clerkId   String          @unique
   name      String?
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
   account   Account?
   entries   JournalEntry[]
   analysis  EntryAnalysis[]
 }
 
 model Account {
-  id      String @id @default(uuid())
-  userId  String
-  user    User   @relation(fields: [userId], references: [id])
-  // stripeCustomerId String @unique
-
-  @@unique([userId])
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
 }
 
 model JournalEntry {
-  id        String   @id @default(uuid())
+  id        String         @id @default(uuid())
   userId    String
-  // The userId field on the JournalEntry table references the id field on the User table
-  user      User     @relation(fields: [userId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  content   String
+  status    String         @default("DRAFT")
+  user      User           @relation(fields: [userId], references: [id])
+  analysis  EntryAnalysis?
 
-  content  String
-  // DRAFT, PUBLISHED, ARCHIVED
-  status   String   @default("DRAFT")
-  analysis EntryAnalysis?
-  
-  // Compound index - userId + id has to be unique
   @@unique([userId, id])
 }
 
 model EntryAnalysis {
-  id             String   @id @default(uuid())
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
-  entryId        String
-  entry          JournalEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
-
+  id             String       @id @default(uuid())
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  entryId        String       @unique
   userId         String
-  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-
   mood           String
   subject        String
   negative       Boolean
   summary        String
-  color          String @default("#0101fe")
+  color          String       @default("#0101fe")
   sentimentScore Float
+  entry          JournalEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([entryId])
   @@index([userId])
 }
