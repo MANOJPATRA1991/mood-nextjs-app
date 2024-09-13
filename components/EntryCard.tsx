@@ -1,12 +1,6 @@
-import { EntryAnalysis, JournalEntry } from "@prisma/client";
+import { TJournalEntry } from "@/types";
 
-type TProps = {
-  entry: JournalEntry & {
-    analysis: EntryAnalysis,
-  },
-};
-
-const EntryCard = ({ entry }: TProps) => {
+const EntryCard = ({ entry }: TJournalEntry) => {
   const date = new Date(entry.createdAt).toDateString();
   return (
     <div className="divide-y divide-gray-200 overflow-hidden rounded-lg bg-white shadow">
