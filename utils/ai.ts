@@ -3,9 +3,14 @@ import { PromptTemplate } from "@langchain/core/prompts";
 import { loadQARefineChain } from "langchain/chains";
 import { MemoryVectorStore } from "langchain/vectorstores/memory";
 import { OpenAIEmbeddings } from "@langchain/openai";
-import { OutputFixingParser, StructuredOutputParser } from "langchain/output_parsers";
+import { Document } from "langchain/document";
+import {
+  OutputFixingParser,
+  StructuredOutputParser,
+} from "langchain/output_parsers";
 import z from "zod";
 import { JournalEntry } from "@prisma/client";
+import { TJournalEntry } from "@/types";
 
 const parser = StructuredOutputParser.fromZodSchema(
   z.object({
@@ -36,7 +41,7 @@ const getPrompt = async (content: string) => {
   const format_instructions = parser.getFormatInstructions();
 
   const prompt = new PromptTemplate({
-    template: 
+    template:
       "Analyze the following journal entry. Follow the instructions and format your response to match the format instructions, no matter what! \n{format_instructions}\n{entry}",
     inputVariables: ["entry"],
     partialVariables: { format_instructions },
@@ -62,9 +67,39 @@ export const analyze = async (entry: JournalEntry) => {
   } catch (e) {
     const fixParser = OutputFixingParser.fromLLM(
       new OpenAI({ temperature: 0, modelName: "gpt-3.5-turbo_instruct" }),
-      parser,
+      parser
     );
     const fix = await fixParser.parse(output);
     return fix;
   }
+};
+
+export const qa = async (
+  question: string,
+  entries: Pick<JournalEntry, "id" | "content" | "createdAt">[]
+) => {
+  const docs = entries.map(
+    (entry) =>
+      new Document({
+        pageContent: entry.content,
+        metadata: { source: entry.id, date: entry.createdAt },
+      })
+  );
+
+  const model = new OpenAI({
+    temperature: 0,
+    modelName: "gpt-3.5-turbo",
+  });
+
+  const chain = loadQARefineChain(model);
+  const embeddings = new OpenAIEmbeddings();
+  const store = await MemoryVectorStore.fromDocuments(docs, embeddings);
+  const relevantDocs = await store.similaritySearch(question);
+
+  const res = await chain.invoke({
+    input_documents: relevantDocs,
+    question,
+  });
+
+  return res.output_text;
 };
