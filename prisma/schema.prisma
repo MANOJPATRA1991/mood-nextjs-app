@@ -51,7 +51,7 @@ model EntryAnalysis {
   negative       Boolean
   summary        String
   color          String       @default("#0101fe")
-  sentimentScore Float
+  sentimentScore Float        @default(0)
   entry          JournalEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
   user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
