@@ -40,3 +40,23 @@ export const PATCH = async (
 
   return NextResponse.json({ data: savedAnalysis });
 };
+
+export const DELETE = async (
+  request: Request,
+  { params }: { params: { id: string } }
+) => {
+  const user = await getUserByClerkID();
+
+  await db.journalEntry.delete({
+    where: {
+      userId_id: {
+        id: params.id,
+        userId: user.id,
+      },
+    },
+  });
+
+  update(["/journal"]);
+
+  return NextResponse.json({ data: { id: params.id } });
+};
