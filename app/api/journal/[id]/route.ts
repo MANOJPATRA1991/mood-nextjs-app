@@ -1,9 +1,11 @@
 import { db } from "@/prisma/db";
+import { update } from "@/utils/actions";
+import { analyze } from "@/utils/ai";
 import { getUserByClerkID } from "@/utils/auth";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
 export const PATCH = async (
-  request: NextRequest,
+  request: Request,
   { params }: { params: { id: string } }
 ) => {
   const { content } = await request.json();
@@ -20,5 +22,21 @@ export const PATCH = async (
     },
   });
 
-  return NextResponse.json({ data: updatedEntry });
+  const analysis = await analyze(updatedEntry);
+
+  const savedAnalysis = await db.entryAnalysis.upsert({
+    where: {
+      entryId: updatedEntry.id,
+    },
+    update: { ...analysis },
+    create: {
+      entryId: updatedEntry.id,
+      userId: user.id,
+      ...analysis,
+    },
+  });
+
+  update(["/journal"]);
+
+  return NextResponse.json({ data: savedAnalysis });
 };
