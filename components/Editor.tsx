@@ -6,10 +6,13 @@ import { EntryAnalysis } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAutosave } from "react-autosave";
+import Spinner from "./Spinner";
 
 const Editor = ({ entry }: TJournalEntry) => {
   const [value, setValue] = useState(entry.content);
-  const [currentAnalysis, setAnalysis] = useState<EntryAnalysis>(entry.analysis);
+  const [currentAnalysis, setAnalysis] = useState<EntryAnalysis>(
+    entry.analysis
+  );
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
@@ -28,19 +31,23 @@ const Editor = ({ entry }: TJournalEntry) => {
   useAutosave({
     data: value,
     onSave: async (_value) => {
-      console.log({ _value })
       if (_value === entry?.content) return;
       setIsLoading(true);
       const data = await updateEntry(entry.id, _value);
-      console.log({ data })
       setAnalysis(data);
       setIsLoading(false);
     },
   });
 
   return (
-    <div className="w-full h-full grid grid-cols-3">
-      {isLoading && <div>...loading</div>}
+    <div className="w-full h-full grid grid-cols-3 gap-0 relative">
+      <div className="absolute left-0 top-0 p-2">
+        {isLoading ? (
+          <Spinner />
+        ) : (
+          <div className="w-[16px] h-[16px] rounded-full bg-green-500"></div>
+        )}
+      </div>
       <div className="col-span-2">
         <textarea
           className="w-full h-full text-xl p-8 outline-none"
