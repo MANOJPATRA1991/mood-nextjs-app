@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "db:generate": "npx prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma --script > migration.sql",
-    "db:push": "turso db shell mood < migration.sql"
+    "db:push": "turso db shell mood < migration.sql",
+    "test": "vitest"
   },
   "dependencies": {
     "@clerk/nextjs": "^5.4.1",
@@ -26,14 +27,20 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/jest-dom": "^6.5.0",
+    "@testing-library/react": "^16.0.1",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@vitejs/plugin-react-swc": "^3.7.0",
     "eslint": "^8",
     "eslint-config-next": "14.2.8",
+    "jsdom": "^25.0.0",
     "postcss": "^8",
     "prisma": "^5.19.1",
     "tailwindcss": "^3.4.1",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^2.1.1"
   }
 }
